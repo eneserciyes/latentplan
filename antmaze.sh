@@ -1,5 +1,5 @@
 export PYTHONPATH=.:$PYTHONPATH
-export PYTHONPATH=$PYTHONPATH:/home/zhengyao/project/transformer_planning/implicit_q_learning
+# export PYTHONPATH=$PYTHONPATH:/home/zhengyao/project/transformer_planning/implicit_q_learning
 
 name=T-3
 antdatasets=(antmaze-large-diverse-v0)
