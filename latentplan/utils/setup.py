@@ -88,7 +88,7 @@ class Parser(Tap):
             Override config parameters with command-line arguments
         '''
         extras = args.extra_args
-        if not len(extras):
+        if not len(extras) or '--ip=127.0.0.1' in extras:
             return
 
         print(f'[ utils/setup ] Found extras: {extras}')
