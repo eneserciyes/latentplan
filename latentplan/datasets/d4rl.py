@@ -61,11 +61,11 @@ def minrl_dataset(dataset):
 
 
 
-def qlearning_dataset_with_timeouts(env, dataset=None, terminate_on_end=False, disable_goal=False, **kwargs):
+def qlearning_dataset_with_timeouts(env, dataset=None, terminate_on_end=False, disable_goal=False, debug=False, **kwargs):
     if dataset is None:
         dataset = env.get_dataset(**kwargs)
 
-    N = dataset['rewards'].shape[0]
+    N = dataset['rewards'].shape[0] if not debug else 50
     obs_ = []
     next_obs_ = []
     action_ = []
