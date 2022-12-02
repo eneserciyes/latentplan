@@ -31,7 +31,7 @@ class VQTrainer:
         optimizer = self.get_optimizer(model)
         model.train(True)
 
-        loader = DataLoader(dataset, shuffle=True, pin_memory=True,
+        loader = DataLoader(dataset, shuffle=False, pin_memory=True, #TODO: change this back
                             batch_size=config.batch_size,
                             num_workers=config.num_workers)
 

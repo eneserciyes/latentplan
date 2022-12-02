@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+
 class Encoder(nn.Module):
     def __init__(self, layer_sizes, latent_size, condition_size):
-
         super().__init__()
         layer_sizes[0] += condition_size
 
@@ -20,7 +20,6 @@ class Encoder(nn.Module):
         self.linear_log_var = nn.Linear(layer_sizes[-1], latent_size)
 
     def forward(self, x):
-
         x = self.MLP(x)
 
         means = self.linear_means(x)
@@ -37,16 +36,17 @@ class Decoder(nn.Module):
 
         input_size = latent_size + condition_size
 
-        for i, (in_size, out_size) in enumerate(zip([input_size]+layer_sizes[:-1], layer_sizes)):
+        for i, (in_size, out_size) in enumerate(zip([input_size] + layer_sizes[:-1], layer_sizes)):
             self.MLP.add_module(
                 name="L{:d}".format(i), module=nn.Linear(in_size, out_size))
-            if i+1 < len(layer_sizes):
+            if i + 1 < len(layer_sizes):
                 self.MLP.add_module(name="A{:d}".format(i), module=nn.ReLU())
 
     def forward(self, z):
         x = self.MLP(z)
 
         return x
+
 
 class MLPModel(nn.Module):
     def __init__(self, config):
@@ -82,6 +82,7 @@ class MLPModel(nn.Module):
         reconstructed = self.decoder(inputs)
         return reconstructed
 
+
 class SymbolWiseTransformer(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -89,7 +90,7 @@ class SymbolWiseTransformer(nn.Module):
         self.condition_size = config.observation_dim
         self.trajectory_input_length = config.block_size - config.transition_dim
         self.embedding_dim = config.n_embd
-        self.trajectory_length = 4*(config.block_size//config.transition_dim-1)
+        self.trajectory_length = 4 * (config.block_size // config.transition_dim - 1)
         self.block_size = config.block_size
         self.observation_dim = config.observation_dim
         self.action_dim = config.action_dim
@@ -112,11 +113,10 @@ class SymbolWiseTransformer(nn.Module):
 
         self.linear_means = nn.Linear(self.embedding_dim, self.latent_size)
         self.linear_log_var = nn.Linear(self.embedding_dim, self.latent_size)
-        self.latent_mixing = nn.Linear(self.latent_size+self.observation_dim, self.embedding_dim)
+        self.latent_mixing = nn.Linear(self.latent_size + self.observation_dim, self.embedding_dim)
 
         self.ln_f = nn.LayerNorm(config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
-
 
     def encode(self, joined_inputs):
         b, t, joined_dimension = joined_inputs.size()
@@ -160,13 +160,13 @@ class SymbolWiseTransformer(nn.Module):
         x = self.decoder(inputs)
         x = self.ln_f(x)
 
-        x = x.reshape(B, -1, 4, self.embedding_dim).permute([0,2,1,3])
+        x = x.reshape(B, -1, 4, self.embedding_dim).permute([0, 2, 1, 3])
 
         ## [B x T x obs_dim]
-        state_pred = self.pred_state(x[:,1]) # next state
-        action_pred = self.pred_action(x[:,0]) # current action
-        reward_pred = self.pred_reward(x[:,1]) # current reward
-        value_pred = self.pred_value(x[:,1]) # current value
+        state_pred = self.pred_state(x[:, 1])  # next state
+        action_pred = self.pred_action(x[:, 0])  # current action
+        reward_pred = self.pred_reward(x[:, 1])  # current reward
+        value_pred = self.pred_value(x[:, 1])  # current value
         joined_pred = torch.cat([state_pred, action_pred, reward_pred, value_pred], dim=-1)
 
         return joined_pred
@@ -179,7 +179,7 @@ class StepWiseTranformer(nn.Module):
         self.condition_size = config.observation_dim
         self.trajectory_input_length = config.block_size - config.transition_dim
         self.embedding_dim = config.n_embd
-        self.trajectory_length = config.block_size//config.transition_dim-1
+        self.trajectory_length = config.block_size // config.transition_dim - 1
         self.block_size = config.block_size
         self.observation_dim = config.observation_dim
         self.action_dim = config.action_dim
@@ -196,11 +196,10 @@ class StepWiseTranformer(nn.Module):
 
         self.linear_means = nn.Linear(self.embedding_dim, self.latent_size)
         self.linear_log_var = nn.Linear(self.embedding_dim, self.latent_size)
-        self.latent_mixing = nn.Linear(self.latent_size+self.observation_dim, self.embedding_dim)
+        self.latent_mixing = nn.Linear(self.latent_size + self.observation_dim, self.embedding_dim)
 
         self.ln_f = nn.LayerNorm(config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
-
 
     def encode(self, joined_inputs):
         b, t, joined_dimension = joined_inputs.size()

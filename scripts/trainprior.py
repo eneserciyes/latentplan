@@ -32,13 +32,13 @@ env = datasets.load_environment(env_name)
 ######## model ########
 #######################
 
-dataset = utils.load_from_config(args.logbase, args.dataset, args.exp_name,
+dataset = utils.load_from_config(args.savepath,
         'data_config.pkl')
 obs_dim = dataset.observation_dim
 act_dim = dataset.action_dim
 transition_dim = dataset.joined_dim+1
 
-representation, _ = utils.load_model(args.logbase, args.dataset, args.exp_name, epoch=args.gpt_epoch, device=args.device)
+representation, _ = utils.load_model(args.savepath, epoch=args.gpt_epoch, device=args.device)
 
 representation.set_padding_vector(dataset.normalize_joined_single(np.zeros(representation.transition_dim - 1)))
 
@@ -102,7 +102,7 @@ trainer = trainer_config()
 ## scale number of epochs to keep number of updates constant
 n_epochs = int(1e6 / len(dataset) * args.n_epochs_ref)
 save_freq = int(n_epochs // args.n_saves)
-wandb.init(project="latentPlanning", config=args, tags=[args.exp_name, args.tag, "prior"])
+wandb.init(project="latentPlanning", config=args, tags=[args.exp_name, args.tag, "prior"], mode="offline")
 
 for epoch in range(n_epochs):
     print(f'\nEpoch: {epoch} / {n_epochs} | {args.dataset} | {args.exp_name}')

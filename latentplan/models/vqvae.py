@@ -3,6 +3,7 @@ from latentplan.models.autoencoders import SymbolWiseTransformer
 from latentplan.models.transformers import *
 from latentplan.models.ein import EinLinear
 
+
 class VectorQuantization(Function):
     @staticmethod
     def forward(ctx, inputs, codebook):
@@ -16,7 +17,7 @@ class VectorQuantization(Function):
 
             # Compute the distances to the codebook
             distances = torch.addmm(codebook_sqr + inputs_sqr,
-                inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
+                                    inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
 
             _, indices_flatten = torch.min(distances, dim=1)
             indices = indices_flatten.view(*inputs_size[:-1])
@@ -27,9 +28,10 @@ class VectorQuantization(Function):
     @staticmethod
     def backward(ctx, grad_output):
         raise RuntimeError('Trying to call `.grad()` on graph containing '
-            '`VectorQuantization`. The function `VectorQuantization` '
-            'is not differentiable. Use `VectorQuantizationStraightThrough` '
-            'if you want a straight-through estimator of the gradient.')
+                           '`VectorQuantization`. The function `VectorQuantization` '
+                           'is not differentiable. Use `VectorQuantizationStraightThrough` '
+                           'if you want a straight-through estimator of the gradient.')
+
 
 class VectorQuantizationStraightThrough(Function):
     @staticmethod
@@ -40,7 +42,7 @@ class VectorQuantizationStraightThrough(Function):
         ctx.mark_non_differentiable(indices_flatten)
 
         codes_flatten = torch.index_select(codebook, dim=0,
-            index=indices_flatten)
+                                           index=indices_flatten)
         codes = codes_flatten.view_as(inputs)
 
         return (codes, indices_flatten)
@@ -58,20 +60,22 @@ class VectorQuantizationStraightThrough(Function):
             embedding_size = codebook.size(1)
 
             grad_output_flatten = (grad_output.contiguous()
-                                              .view(-1, embedding_size))
+                                   .view(-1, embedding_size))
             grad_codebook = torch.zeros_like(codebook)
             grad_codebook.index_add_(0, indices, grad_output_flatten)
 
         return (grad_inputs, grad_codebook)
 
+
 vq = VectorQuantization.apply
 vq_st = VectorQuantizationStraightThrough.apply
+
 
 class VQEmbeddingMovingAverage(nn.Module):
     def __init__(self, K, D, decay=0.99):
         super().__init__()
         embedding = torch.zeros(K, D)
-        embedding.uniform_(-1./K, 1./K)
+        embedding.uniform_(-1. / K, 1. / K)
         self.decay = decay
 
         self.register_buffer("embedding", embedding)
@@ -90,12 +94,11 @@ class VQEmbeddingMovingAverage(nn.Module):
         z_q_x_, indices = vq_st(z_e_x_, self.embedding)
         z_q_x = z_q_x_.contiguous()
 
-
         if self.training:
             encodings = F.one_hot(indices, K).float()
             self.ema_count = self.decay * self.ema_count + (1 - self.decay) * torch.sum(encodings, dim=0)
 
-            dw = encodings.transpose(1, 0)@z_e_x_.reshape([-1, D])
+            dw = encodings.transpose(1, 0) @ z_e_x_.reshape([-1, D])
             self.ema_w = self.decay * self.ema_w + (1 - self.decay) * dw
 
             self.embedding = self.ema_w / (self.ema_count.unsqueeze(-1))
@@ -109,11 +112,12 @@ class VQEmbeddingMovingAverage(nn.Module):
 
         return z_q_x, z_q_x_bar
 
+
 class VQEmbedding(nn.Module):
     def __init__(self, K, D):
         super().__init__()
         self.embedding = nn.Embedding(K, D)
-        self.embedding.weight.data.uniform_(-1./K, 1./K)
+        self.embedding.weight.data.uniform_(-1. / K, 1. / K)
 
     def forward(self, z_e_x):
         z_e_x_ = z_e_x.contiguous()
@@ -126,7 +130,7 @@ class VQEmbedding(nn.Module):
         z_q_x = z_q_x_.contiguous()
 
         z_q_x_bar_flatten = torch.index_select(self.embedding.weight,
-            dim=0, index=indices)
+                                               dim=0, index=indices)
         z_q_x_bar_ = z_q_x_bar_flatten.view_as(z_e_x_)
         z_q_x_bar = z_q_x_bar_.contiguous()
 
@@ -136,12 +140,12 @@ class VQEmbedding(nn.Module):
 class VQStepWiseTransformer(nn.Module):
     def __init__(self, config, feature_dim):
         super().__init__()
-        self.K=config.K
+        self.K = config.K
         self.latent_size = config.trajectory_embd
         self.condition_size = config.observation_dim
         self.trajectory_input_length = config.block_size - config.transition_dim
         self.embedding_dim = config.n_embd
-        self.trajectory_length = config.block_size//config.transition_dim-1
+        self.trajectory_length = config.block_size // config.transition_dim - 1
         self.block_size = config.block_size
         self.observation_dim = feature_dim
         self.action_dim = config.action_dim
@@ -161,7 +165,7 @@ class VQStepWiseTransformer(nn.Module):
             self.codebook = VQEmbeddingMovingAverage(config.K, config.trajectory_embd)
             self.ma_update = True
 
-        if "residual" not in config :
+        if "residual" not in config:
             self.residual = True
         else:
             self.residual = config.residual
@@ -174,7 +178,7 @@ class VQStepWiseTransformer(nn.Module):
         self.predict = nn.Linear(self.embedding_dim, self.transition_dim)
 
         self.cast_embed = nn.Linear(self.embedding_dim, self.latent_size)
-        self.latent_mixing = nn.Linear(self.latent_size+self.observation_dim, self.embedding_dim)
+        self.latent_mixing = nn.Linear(self.latent_size + self.observation_dim, self.embedding_dim)
         if "bottleneck" not in config:
             self.bottleneck = "pooling"
         else:
@@ -189,7 +193,6 @@ class VQStepWiseTransformer(nn.Module):
 
         self.ln_f = nn.LayerNorm(config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
-
 
     def encode(self, joined_inputs):
         joined_inputs = joined_inputs.to(dtype=torch.float32)
@@ -282,7 +285,7 @@ class VQContinuousVAE(nn.Module):
             self.masking = "none"
 
         self.action_dim = config.action_dim
-        self.trajectory_length = config.block_size//config.transition_dim-1
+        self.trajectory_length = config.block_size // config.transition_dim - 1
         self.transition_dim = config.transition_dim
         self.action_weight = config.action_weight
         self.reward_weight = config.reward_weight
@@ -293,7 +296,7 @@ class VQContinuousVAE(nn.Module):
         self.last_value_weight = config.last_value_weight
         self.latent_step = config.latent_step
 
-        self.padding_vector = torch.zeros(self.transition_dim-1)
+        self.padding_vector = torch.zeros(self.transition_dim - 1)
         self.apply(self._init_weights)
 
     def get_block_size(self):
@@ -326,7 +329,7 @@ class VQContinuousVAE(nn.Module):
         blacklist_weight_modules = (torch.nn.LayerNorm, torch.nn.Embedding)
         for mn, m in self.named_modules():
             for pn, p in m.named_parameters():
-                fpn = '%s.%s' % (mn, pn) if mn else pn # full param name
+                fpn = '%s.%s' % (mn, pn) if mn else pn  # full param name
 
                 if pn.endswith('bias'):
                     # all biases will not be decayed
@@ -351,9 +354,10 @@ class VQContinuousVAE(nn.Module):
         param_dict = {pn: p for pn, p in self.named_parameters()}
         inter_params = decay & no_decay
         union_params = decay | no_decay
-        assert len(inter_params) == 0, "parameters %s made it into both decay/no_decay sets!" % (str(inter_params), )
-        assert len(param_dict.keys() - union_params) == 0, "parameters %s were not separated into either decay/no_decay set!" \
-                                                    % (str(param_dict.keys() - union_params), )
+        assert len(inter_params) == 0, "parameters %s made it into both decay/no_decay sets!" % (str(inter_params),)
+        assert len(
+            param_dict.keys() - union_params) == 0, "parameters %s were not separated into either decay/no_decay set!" \
+                                                    % (str(param_dict.keys() - union_params),)
 
         # create the pytorch optimizer object
         optim_groups = [
@@ -369,7 +373,7 @@ class VQContinuousVAE(nn.Module):
         padded = torch.tensor(self.padding_vector, dtype=torch.float32,
                               device=joined_inputs.device).repeat(b, t, 1)
         terminal_mask = torch.clone(1 - terminals).repeat(1, 1, joined_inputs.shape[-1])
-        joined_inputs = joined_inputs*terminal_mask+(1-terminal_mask)*padded
+        joined_inputs = joined_inputs * terminal_mask + (1 - terminal_mask) * padded
 
         trajectory_feature = self.model.encode(torch.cat([joined_inputs, terminals], dim=2))
         if self.model.ma_update:
@@ -384,15 +388,16 @@ class VQContinuousVAE(nn.Module):
     def decode_from_indices(self, indices, state):
         B, T = indices.shape
         if self.model.ma_update:
-            latent = torch.index_select(self.model.codebook.embedding, dim=0, index=indices.flatten()).reshape([B, T, -1])
+            latent = torch.index_select(self.model.codebook.embedding, dim=0, index=indices.flatten()).reshape(
+                [B, T, -1])
         else:
             latent = torch.index_select(self.model.codebook.embedding.weight, dim=0, index=indices.flatten()).reshape(
                 [B, T, -1])
         if self.model.bottleneck == "attention":
-            latent = torch.concat([latent, torch.zeros([B, self.trajectory_length//self.latent_step, latent.shape[2]],
+            latent = torch.concat([latent, torch.zeros([B, self.trajectory_length // self.latent_step, latent.shape[2]],
                                                        device=latent.device)],
                                   dim=1)
-        state = state[:,None,:]
+        state = state[:, None, :]
         return self.model.decode(latent, state.repeat(latent.shape[0], 1, 1))
 
     def forward(self, joined_inputs, targets=None, mask=None, terminals=None, returnx=False):
@@ -400,7 +405,6 @@ class VQContinuousVAE(nn.Module):
             joined_inputs : [ B x T x joined_dimension]
             values : [ B x 1 x 1 ]
         """
-
         joined_inputs = joined_inputs.to(dtype=torch.float32)
         b, t, joined_dimension = joined_inputs.size()
         padded = torch.tensor(self.padding_vector, dtype=torch.float32,
@@ -408,9 +412,9 @@ class VQContinuousVAE(nn.Module):
 
         if terminals is not None:
             terminal_mask = torch.clone(1 - terminals).repeat(1, 1, joined_inputs.shape[-1])
-            joined_inputs = joined_inputs*terminal_mask+(1-terminal_mask)*padded
+            joined_inputs = joined_inputs * terminal_mask + (1 - terminal_mask) * padded
 
-        state = joined_inputs[:,0,:self.observation_dim]
+        state = joined_inputs[:, 0, :self.observation_dim]
         ## [ B x T x embedding_dim ]
         # forward the GPT model
         reconstructed, latents, feature = self.model(torch.cat([joined_inputs, terminals], dim=2), state)
@@ -419,27 +423,28 @@ class VQContinuousVAE(nn.Module):
 
         # if we are given some desired targets also calculate the loss
         if targets is not None:
-            #kl = torch.mean(-0.5 * torch.sum(1 + log_var - means.pow(2) - log_var.exp(), dim=1), dim=0)
+            # kl = torch.mean(-0.5 * torch.sum(1 + log_var - means.pow(2) - log_var.exp(), dim=1), dim=0)
             weights = torch.cat([
-                torch.ones(2, device=joined_inputs.device)*self.position_weight,
-                torch.ones(self.observation_dim-2, device=joined_inputs.device),
+                torch.ones(2, device=joined_inputs.device) * self.position_weight,
+                torch.ones(self.observation_dim - 2, device=joined_inputs.device),
                 torch.ones(self.action_dim, device=joined_inputs.device) * self.action_weight,
                 torch.ones(1, device=joined_inputs.device) * self.reward_weight,
                 torch.ones(1, device=joined_inputs.device) * self.value_weight,
             ])
-            mse = F.mse_loss(pred_trajectory, joined_inputs, reduction='none')*weights[None, None, :]
+            mse = F.mse_loss(pred_trajectory, joined_inputs, reduction='none') * weights[None, None, :]
 
-            first_action_loss = self.first_action_weight*F.mse_loss(joined_inputs[:, 0, self.observation_dim:self.observation_dim+self.action_dim],
-                                                                    pred_trajectory[:, 0, self.observation_dim:self.observation_dim+self.action_dim])
-            sum_reward_loss = self.sum_reward_weight*F.mse_loss(joined_inputs[:, :, -2].mean(dim=1),
-                                                                pred_trajectory[:, :, -2].mean(dim=1))
-            last_value_loss = self.last_value_weight*F.mse_loss(joined_inputs[:, -1, -1],
-                                                                pred_trajectory[:, -1, -1])
+            first_action_loss = self.first_action_weight * F.mse_loss(
+                joined_inputs[:, 0, self.observation_dim:self.observation_dim + self.action_dim],
+                pred_trajectory[:, 0, self.observation_dim:self.observation_dim + self.action_dim])
+            sum_reward_loss = self.sum_reward_weight * F.mse_loss(joined_inputs[:, :, -2].mean(dim=1),
+                                                                  pred_trajectory[:, :, -2].mean(dim=1))
+            last_value_loss = self.last_value_weight * F.mse_loss(joined_inputs[:, -1, -1],
+                                                                  pred_trajectory[:, -1, -1])
             cross_entropy = F.binary_cross_entropy(pred_terminals, torch.clip(terminals.float(), 0.0, 1.0))
-            reconstruction_loss = (mse*mask*terminal_mask).mean()+cross_entropy
+            reconstruction_loss = (mse * mask * terminal_mask).mean() + cross_entropy
             reconstruction_loss = reconstruction_loss + first_action_loss + sum_reward_loss + last_value_loss
 
-            #reconstruction_loss = torch.sqrt((mse * mask).sum(dim=1)).mean()
+            # reconstruction_loss = torch.sqrt((mse * mask).sum(dim=1)).mean()
 
             if self.model.ma_update:
                 loss_vq = 0
@@ -447,7 +452,7 @@ class VQContinuousVAE(nn.Module):
                 loss_vq = F.mse_loss(latents, feature.detach())
             # Commitment objective
             loss_commit = F.mse_loss(feature, latents.detach())
-            #loss_commit = 0
+            # loss_commit = 0
         else:
             reconstruction_loss = None
             loss_vq = None
@@ -506,7 +511,7 @@ class TransformerPrior(nn.Module):
         blacklist_weight_modules = (torch.nn.LayerNorm, torch.nn.Embedding)
         for mn, m in self.named_modules():
             for pn, p in m.named_parameters():
-                fpn = '%s.%s' % (mn, pn) if mn else pn # full param name
+                fpn = '%s.%s' % (mn, pn) if mn else pn  # full param name
 
                 if pn.endswith('bias'):
                     # all biases will not be decayed
@@ -525,9 +530,10 @@ class TransformerPrior(nn.Module):
         param_dict = {pn: p for pn, p in self.named_parameters()}
         inter_params = decay & no_decay
         union_params = decay | no_decay
-        assert len(inter_params) == 0, "parameters %s made it into both decay/no_decay sets!" % (str(inter_params), )
-        assert len(param_dict.keys() - union_params) == 0, "parameters %s were not separated into either decay/no_decay set!" \
-                                                    % (str(param_dict.keys() - union_params), )
+        assert len(inter_params) == 0, "parameters %s made it into both decay/no_decay sets!" % (str(inter_params),)
+        assert len(
+            param_dict.keys() - union_params) == 0, "parameters %s were not separated into either decay/no_decay set!" \
+                                                    % (str(param_dict.keys() - union_params),)
 
         # create the pytorch optimizer object
         optim_groups = [
@@ -548,16 +554,17 @@ class TransformerPrior(nn.Module):
         if not idx is None:
             b, t = idx.size()
             assert t <= self.block_size, "Cannot forward, model block size is exhausted."
-            token_embeddings = self.tok_emb(idx) # each index maps to a (learnable) vector
-            token_embeddings = torch.cat([torch.zeros(size=(b, 1, self.embedding_dim)).to(token_embeddings), token_embeddings],
-                                             dim=1)
+            token_embeddings = self.tok_emb(idx)  # each index maps to a (learnable) vector
+            token_embeddings = torch.cat(
+                [torch.zeros(size=(b, 1, self.embedding_dim)).to(token_embeddings), token_embeddings],
+                dim=1)
         else:
             b = 1
             t = 0
             token_embeddings = torch.zeros(size=(b, 1, self.embedding_dim)).to(state)
 
         ## [ 1 x T+1 x embedding_dim ]
-        position_embeddings = self.pos_emb[:, :t+1, :] # each position maps to a (learnable) vector
+        position_embeddings = self.pos_emb[:, :t + 1, :]  # each position maps to a (learnable) vector
         state_embeddings = self.state_emb(state)[:, None]
         ## [ B x T+1 x embedding_dim ]
         x = self.drop(token_embeddings + position_embeddings + state_embeddings)
@@ -567,7 +574,7 @@ class TransformerPrior(nn.Module):
 
         logits = self.head(x)
         logits = logits.reshape(b, t + 1, self.vocab_size)
-        logits = logits[:,:t+1]
+        logits = logits[:, :t + 1]
 
         # if we are given some desired targets also calculate the loss
         if targets is not None:

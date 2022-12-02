@@ -29,7 +29,7 @@ base = {
         'n_epochs_ref': 50,
         'n_saves': 3,
         'logbase': logbase,
-        'device': 'cuda',
+        'device': 'cpu',
 
         'K': 512,
         'latent_step': 3,
@@ -74,7 +74,7 @@ base = {
         'logbase': logbase,
         'gpt_loadpath': gpt_expname,
         'gpt_epoch': 'latest',
-        'device': 'cuda',
+        'device': 'cpu',
         'renderer': 'Renderer',
         'suffix': '0',
 
