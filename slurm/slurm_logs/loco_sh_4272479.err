@@ -1,0 +1,14 @@
+pybullet build time: May 20 2022 19:45:31
+load datafile:   0%|          | 0/11 [00:00<?, ?it/s]load datafile:  27%|██▋       | 3/11 [00:00<00:00, 11.08it/s]load datafile:  45%|████▌     | 5/11 [00:00<00:00, 11.49it/s]load datafile:  64%|██████▎   | 7/11 [00:00<00:00, 11.53it/s]load datafile:  82%|████████▏ | 9/11 [00:00<00:00, 11.19it/s]load datafile: 100%|██████████| 11/11 [00:00<00:00, 13.67it/s]
+wandb: Tracking run with wandb version 0.13.5
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+slurmstepd: error: *** JOB 4272479 ON ai04 CANCELLED AT 2022-12-07T23:09:37 DUE TO TIME LIMIT ***
+wandb: ERROR Failed to sample metric: process no longer exists (pid=72709)
+Exception in thread MsgRouterThr:
+Traceback (most recent call last):
+  File "/kuacc/users/merciyes18/.conda/envs/tap/lib/python3.9/threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "/kuacc/users/merciyes18/.conda/envs/tap/lib/python3.9/threading.py", line 917, in run
+    self._target(*self._args, **self._kwargs)
+  File "/kuacc/users/merciyes18/.conda/envs/tap/lib/python3.9/site-packages/wandb/sdk/interface/router.py", line 70, in message_loop
