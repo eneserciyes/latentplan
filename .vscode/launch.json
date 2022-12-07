@@ -4,12 +4,22 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Train",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
             "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Train (Adroit)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/train.py",
+            "console": "integratedTerminal",
+            "args": ["--dataset", "pen-cloned-v0", "--exp_name", "debug", "--tag", "development", "--seed", "1"],
             "justMyCode": true
         }
     ]
