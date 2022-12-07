@@ -172,7 +172,7 @@ class SequenceDataset(torch.utils.data.Dataset):
     def normalize_joined_single(self, joined):
         joined_std = np.concatenate([self.obs_std[0], self.act_std[0], self.reward_std[None], self.value_std[None]])
         joined_mean = np.concatenate([self.obs_mean[0], self.act_mean[0], self.reward_mean[None], self.value_mean[None]])
-        return (joined-joined_mean) / joined_std
+        return (joined-joined_mean) / (joined_std + 1e-8)
 
     def denormalize_joined(self, joined):
         states = joined[:,:self.observation_dim]
@@ -190,7 +190,7 @@ class SequenceDataset(torch.utils.data.Dataset):
         else:
             obs_std = np.squeeze(np.array(self.obs_std))
             obs_mean =  np.squeeze(np.array(self.obs_mean))
-        states = (states - obs_mean) / obs_std
+        states = (states - obs_mean) / (obs_std + 1e-8)
         return states
 
     def denormalize_states(self, states):
@@ -220,7 +220,7 @@ class SequenceDataset(torch.utils.data.Dataset):
         else:
             act_std = np.squeeze(np.array(self.act_std))
             act_mean =  np.squeeze(np.array(self.act_mean))
-        actions = (actions - act_mean) / act_std
+        actions = (actions - act_mean) / (act_std + 1e-8)
         return actions
 
     def denormalize_rewards(self, rewards):
