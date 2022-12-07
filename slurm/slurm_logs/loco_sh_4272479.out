@@ -1,0 +1,21 @@
+fail to lead iql
+[ utils/setup ] Reading config: config.vqvae:hopper_medium_replay_v2
+[ utils/setup ] Not using overrides | config: config.vqvae | dataset: hopper_medium_replay_v2
+[ utils/setup ] Saved args to /kuacc/users/merciyes18/logs/hopper-medium-replay-v2/vae/vq/args.json
+
+Config: <class 'latentplan.datasets.sequence.SequenceDataset'>
+    disable_goal: False
+    discount: 0.99
+    env: hopper-medium-replay-v2
+    max_path_length: 1000
+    normalize_raw: True
+    normalize_reward: True
+    penalty: -100
+    sequence_length: 25
+    step: 1
+
+Saved config to: /kuacc/users/merciyes18/logs/hopper-medium-replay-v2/vae/vq/data_config.pkl
+
+[ datasets/sequence ] Sequence length: 25 | Step: 1 | Max path length: 1000
+[ datasets/sequence ] Loading... ✓
+[ datasets/sequence ] Segmenting... 

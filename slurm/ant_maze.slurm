@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=train_ant_maze_tap
-#SBATCH --output=logs/train_ant_maze_tap_%j.out
-#SBATCH --error=logs/train_ant_maze_tap_%j.err
+#SBATCH --output=slurm_logs/train_ant_maze_tap_%j.out
+#SBATCH --error=slurm_logs/train_ant_maze_tap_%j.err
 #SBATCH --time=24:00:00
 #SBATCH --gres gpu:1
 #SBATCH --account="vita"

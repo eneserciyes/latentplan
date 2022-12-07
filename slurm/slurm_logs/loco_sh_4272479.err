@@ -1,0 +1,5 @@
+pybullet build time: May 20 2022 19:45:31
+load datafile:   0%|          | 0/11 [00:00<?, ?it/s]load datafile:  27%|██▋       | 3/11 [00:00<00:00, 11.08it/s]load datafile:  45%|████▌     | 5/11 [00:00<00:00, 11.49it/s]load datafile:  64%|██████▎   | 7/11 [00:00<00:00, 11.53it/s]load datafile:  82%|████████▏ | 9/11 [00:00<00:00, 11.19it/s]load datafile: 100%|██████████| 11/11 [00:00<00:00, 13.67it/s]
+wandb: Tracking run with wandb version 0.13.5
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
