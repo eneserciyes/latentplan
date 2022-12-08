@@ -50,6 +50,9 @@ class Parser(Tap):
         self.generate_exp_name(args)
         self.mkdir(args)
         self.save_diff(args)
+        if experiment == "plan":
+            args.gpt_loadpath = os.path.join(os.path.expanduser(args.logbase), args.dataset, args.gpt_loadpath)
+
         args.task_type = "locomotion"
         args.obs_shape = [-1]
 

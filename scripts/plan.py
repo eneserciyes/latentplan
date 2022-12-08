@@ -45,17 +45,17 @@ except:
 #######################
 
 env = datasets.load_environment(args.dataset)
-dataset = utils.load_from_config(args.savepath,
+dataset = utils.load_from_config(args.gpt_loadpath,
         'data_config.pkl')
 
 
-gpt, gpt_epoch = utils.load_model(args.savepath,
+gpt, gpt_epoch = utils.load_model(args.gpt_loadpath,
         epoch=args.gpt_epoch, device=args.device)
 #gpt.reset_model()
 #gpt.to('cuda')
 
 if args.test_planner in ["sample_prior", "sample_prior_tree", "beam_prior", "beam_mimic", "beam_uniform"]:
-    prior, _ = utils.load_prior_model(args.savepath,
+    prior, _ = utils.load_prior_model(args.gpt_loadpath,
                                       epoch=args.gpt_epoch, device=args.device)
 #prior.reset_model()
 

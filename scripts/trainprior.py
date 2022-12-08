@@ -32,7 +32,7 @@ env = datasets.load_environment(env_name)
 ######## model ########
 #######################
 
-dataset = utils.load_from_config(args.savepath,
+dataset = utils.load_from_config(args.gpt_loadpath,
         'data_config.pkl')
 obs_dim = dataset.observation_dim
 act_dim = dataset.action_dim
