@@ -5,9 +5,9 @@ datasets=(pen-cloned-v0)
 
 for round in {1..1}; do
   for data in ${datasets[@]}; do
-    # python scripts/train.py --dataset $data --exp_name $name-$round --tag development --seed $round
+    python scripts/train.py --dataset $data --exp_name $name-$round --tag development --seed $round
     python scripts/trainprior.py --dataset $data --exp_name $name-$round
-    for i in {1..5};
+    for i in {1..1};
     do
       python scripts/plan.py --test_planner beam_prior --dataset $data --exp_name $name-$round --suffix $i --n_expand 4 --beam_width 256 --horizon 24
     done
