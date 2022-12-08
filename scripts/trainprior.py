@@ -102,7 +102,7 @@ trainer = trainer_config()
 ## scale number of epochs to keep number of updates constant
 n_epochs = int(1e6 / len(dataset) * args.n_epochs_ref)
 save_freq = int(n_epochs // args.n_saves)
-wandb.init(project="latentPlanning", config=args, tags=[args.exp_name, args.tag, "prior"], mode="offline")
+wandb.init(project="latentPlanning", config=args, tags=[args.exp_name, args.tag, "prior"])
 
 for epoch in range(n_epochs):
     print(f'\nEpoch: {epoch} / {n_epochs} | {args.dataset} | {args.exp_name}')
