@@ -101,7 +101,7 @@ trainer = trainer_config()
 
 ## scale number of epochs to keep number of updates constant
 n_epochs = 1 # int(1e6 / len(dataset) * args.n_epochs_ref)
-save_freq = int(n_epochs // args.n_saves)
+save_freq = 1 # int(n_epochs // args.n_saves)
 wandb.init(project="latentPlanning", config=args, tags=[args.exp_name, args.tag, "prior"])
 
 for epoch in range(n_epochs):
