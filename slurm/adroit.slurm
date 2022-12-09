@@ -3,7 +3,7 @@
 #SBATCH --job-name=adroit
 #SBATCH --output=slurm_logs/adroit_sh_%j.out
 #SBATCH --error=slurm_logs/adroit_sh_%j.err
-#SBATCH --time=06:00:00
+#SBATCH --time=01:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --account=ai
 #SBATCH --partition=ai
