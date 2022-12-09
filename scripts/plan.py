@@ -212,22 +212,22 @@ for t in range(T):
     )
 
     ## visualization
-    if t % args.vis_freq == 0 or terminal or t == T-1:
-        if not os.path.exists(args.savepath):
-            os.makedirs(args.savepath)
+    # if t % args.vis_freq == 0 or terminal or t == T-1:
+    #     if not os.path.exists(args.savepath):
+    #         os.makedirs(args.savepath)
 
-        # ffmpeg will report a error in some setup
-        if "antmaze" in env.name or "medium" in env.name:
-            _, mse = renderer.render_plan(join(args.savepath, f'{t}_plan.mp4'),
-                             sequence_recon, state)
-        else:
-            _, mse = renderer.render_real(join(args.savepath, f'{t}_plan.mp4'),
-                                          sequence_recon, state)
+    #     # ffmpeg will report a error in some setup
+    #     if "antmaze" in env.name or "medium" in env.name:
+    #         _, mse = renderer.render_plan(join(args.savepath, f'{t}_plan.mp4'),
+    #                          sequence_recon, state)
+    #     else:
+    #         _, mse = renderer.render_real(join(args.savepath, f'{t}_plan.mp4'),
+    #                                       sequence_recon, state)
 
-        ## save rollout thus far
-        renderer.render_rollout(join(args.savepath, f'rollout.mp4'), rollout, fps=80)
-        if not terminal:
-            mses.append(mse)
+    #     ## save rollout thus far
+    #     renderer.render_rollout(join(args.savepath, f'rollout.mp4'), rollout, fps=80)
+    #     if not terminal:
+    #         mses.append(mse)
 
     if terminal: break
 
