@@ -1,7 +1,7 @@
 export PYTHONPATH=.:$PYTHONPATH
 
 name=T-2
-datasets=(pen-cloned-v0)
+datasets=(door-human-v0 door-cloned-v0 door-expert-v0)
 
 for round in {1..5}; do
   for data in ${datasets[@]}; do

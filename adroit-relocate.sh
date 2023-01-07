@@ -3,7 +3,7 @@ export PYTHONPATH=.:$PYTHONPATH
 name=T-2
 datasets=(pen-cloned-v0)
 
-for round in {1..5}; do
+for round in {2..5}; do
   for data in ${datasets[@]}; do
     python scripts/train.py --dataset $data --exp_name $name-$round --tag development --seed $round
     python scripts/trainprior.py --dataset $data --exp_name $name-$round
