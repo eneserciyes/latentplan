@@ -5,11 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}:$PYTHONPATH"
+            },
+            "justMyCode": true
+        },
+        {
             "name": "Train Adroit pen-cloned-v0",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/train.py",
-            "args": ["--dataset", "pen-cloned-v0", "--exp_name", "debug-test", "--tag", "development", "--seed", "1"],
+            "args": [
+                "--dataset",
+                "pen-cloned-v0",
+                "--exp_name",
+                "debug-test",
+                "--tag",
+                "development",
+                "--seed",
+                "1"
+            ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}:$PYTHONPATH"
             },
