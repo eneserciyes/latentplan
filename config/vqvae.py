@@ -109,6 +109,7 @@ hammer_cloned_v0 = hammer_human_v0 = human_expert_v0 = {
         "max_path_length": 200,
         'n_epochs_ref': 10,
         'subsampled_sequence_length': 25,
+        'n_layer': 3,
     },
     'plan': {
         'horizon': 24,
@@ -121,6 +122,7 @@ relocate_cloned_v0 = relocate_human_v0 = relocate_expert_v0 = {
         "max_path_length": 200,
         'n_epochs_ref': 10,
         'subsampled_sequence_length': 25,
+        'n_layer': 3,
     },
     'plan': {
         'horizon': 24,
@@ -133,6 +135,7 @@ door_cloned_v0 = door_human_v0 = door_expert_v0 = {
         "max_path_length": 200,
         'n_epochs_ref': 10,
         'subsampled_sequence_length': 25,
+        'n_layer': 3,
     },
     'plan': {
         'horizon': 24,
@@ -145,6 +148,7 @@ pen_cloned_v0 = pen_expert_v0 = pen_human_v0 = {
         "max_path_length": 100,
         'n_epochs_ref': 10,
         'subsampled_sequence_length': 25,
+        'n_layer': 3,
     },
     'plan': {
         'prob_weight': 5e2,
