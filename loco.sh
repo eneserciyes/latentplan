@@ -1,9 +1,9 @@
 export PYTHONPATH=.:$PYTHONPATH
 
 name=T-1
-datasets=(hopper-medium-replay-v2 hopper-medium-expert-v2)
+datasets=(hopper-medium-replay-v2)
 
-for round in {1..5}; do
+for round in {2..5}; do
   for data in ${datasets[@]}; do
     python scripts/train.py --dataset $data --exp_name $name-$round --tag development --seed $round
     python scripts/trainprior.py --dataset $data --exp_name $name-$round
@@ -15,7 +15,7 @@ for round in {1..5}; do
 done
 
 for data in ${datasets[@]}; do
-  for round in {1..5}; do
+  for round in {1..1}; do
     python plotting/read_results.py --exp_name $name-$round --dataset $data
   done
   python plotting/read_results.py --exp_name $name --dataset $data

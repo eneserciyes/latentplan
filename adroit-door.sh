@@ -1,9 +1,9 @@
 export PYTHONPATH=.:$PYTHONPATH
 
 name=T-2
-datasets=(door-human-v0 door-cloned-v0 door-expert-v0)
+datasets=(door-cloned-v0)
 
-for round in {1..5}; do
+for round in {1..1}; do
   for data in ${datasets[@]}; do
     python scripts/train.py --dataset $data --exp_name $name-$round --tag development --seed $round
     python scripts/trainprior.py --dataset $data --exp_name $name-$round

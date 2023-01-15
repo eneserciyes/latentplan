@@ -15,7 +15,7 @@ foo() {
   done
 }
 
-for round in {1..5}; do
+for round in {2..2}; do
   foo "$round" &
 done
 

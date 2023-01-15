@@ -1,2 +1,3 @@
 wandb/
 __pycache__/
+trajectory_autoencoding_planner.egg-info/
